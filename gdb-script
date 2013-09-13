@@ -1,0 +1,6 @@
+start
+b *gettok
+continue
+next
+watch LastChar
+continue
