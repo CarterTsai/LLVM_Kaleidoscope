@@ -1,0 +1,18 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/ham/document/c_code/Kaleidoscope/test/tests.cpp
+whattotest.cpp
+/home/ham/document/c_code/Kaleidoscope/test/whattotest.cpp
+gtest/gtest.h
+-
+
+/home/ham/document/c_code/Kaleidoscope/test/whattotest.cpp
+math.h
+-
+

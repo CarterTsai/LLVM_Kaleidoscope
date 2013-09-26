@@ -8,6 +8,7 @@
 #include <vector>
 #include <iostream>
 #include "lexer.h"
+#include "cllvm.h"
 
 // BinopPrecedence - This holds the precedence for each binary operator that is
 // defined
@@ -16,14 +17,16 @@
 // ExpreAST - Base class for all expression nodes
 
 class ExprAST {
-    public:
-     virtual ~ExprAST() {}   
+public:
+     virtual ~ExprAST() {} ; 
+     virtual Value *Codegen() = 0;
 };
 
 class NumberExprAST: public ExprAST {
     double Val;
 public:
     NumberExprAST(double val): Val(val) {};
+    virtual Value *Codegen();
 };
 
 // VariableExprAST - Expression class for referencing a variable , like 'a'
@@ -31,6 +34,7 @@ class VariableExprAST: public ExprAST {
     std::string Name;
 public:
     VariableExprAST(const std::string &name) : Name(name) {};
+    virtual Value *Codegen();
 };
 
 // BinaryExprAST - Expression class for a binary operator
@@ -40,6 +44,7 @@ class BinaryExprAST: public ExprAST {
 public:
     BinaryExprAST(char op, ExprAST *lhs, ExprAST *rhs) : Op(op), LHS(lhs),
     RHS(rhs) {};
+    virtual Value *Codegen();
 };
 
 // CallExprAST - Expression class for function calls
@@ -49,6 +54,7 @@ class CallExprAST : public ExprAST {
 public:
     CallExprAST (const std::string &callee, std::vector<ExprAST*> &args) :
         Callee(callee), Args(args) {}
+    virtual Value *Codegen();
 };
 
 // PrototypeAST - This Class represents the "prototype" for a function,

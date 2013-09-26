@@ -3,6 +3,7 @@
 #include <map>
 #include <string>
 #include <vector>
+#include "cllvm.h"
 #include "parser.h"
 #include "error.h"
 
@@ -206,4 +207,53 @@ void HandleTopLevelExpression() {
         // Skip token for error recovery
         getNextToken();
     }
+}
+
+// Code Generation
+
+Value *NumberExprAST::Codegen() {
+    return ConstantFP::get(getGlobalContext(), APFloat(Val));
+}
+
+Value *VariableExprAST::Codegen() {
+    // Look this variable up in the function
+    Value *V = NameValues[Name];
+    return V ? V : ErrorV("Unknown variable name");
+}
+
+Value *BinaryExprAST::Codegen() {
+    Value *L = LHS->Codegen();
+    Value *R = RHS->Codegen();
+    if (L == 0 || R ==0) return 0;
+    
+    switch(Op) {
+        case '+': return Builder.CreateFAdd(L, R, "addtmp");
+        case '-': return Builder.CreateFSub(L, R, "subtmp");
+        case '*': return Builder.CreateFMul(L, R, "multmp");
+        case '<':
+                  L = Builder.CreateFCmpULT(L, R, "cmptmp");
+                  // Convert bool 0/1 to double 0.0 or 1.0
+                  return Builder.CreateUIToFP(L, Type::getDoubleTy(
+                          getGlobalContext()), "booltmp");
+        default: return ErrorV("invalid binary operator");
+    }       
+}
+
+Value *CallExprAST::Codegen() {
+    // Look up the name in the global module table.
+    Function *CalleeF = TheModule->getFunction(Callee);
+    if(CalleeF == 0)
+        return ErrorV("Unknown function referenced");
+
+    // If argument mismatch error.
+    if(CalleeF->arg_size() != Args.size())
+        return ErrorV("Incorrect # arguments passed");
+
+    std::vector<Value*> ArgsV;
+    for (unsigned i = 0, e = Args.size(); i != e ; ++i) {
+        ArgsV.push_back(Args[i]->Codegen());
+        if (ArgsV.back() == 0) return 0;
+    }
+
+    return Builder.CreateCall(CalleeF, ArgsV, "calltmp");
 }
