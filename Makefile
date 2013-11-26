@@ -1,7 +1,7 @@
 CPP    	= clang++
 CFLAGS 	= -g -O0
-INC 	:= $(shell llvm-config --ldflags --cppflags)
-LIB 	:= $(shell llvm-config --libs core)
+INC 	:= $(shell llvm-config-3.5 --ldflags --cppflags)
+LIB 	:= $(shell llvm-config-3.5 --libs core)
 
 OBJS = lexer.o error.o parser.o
 
