@@ -257,3 +257,68 @@ Value *CallExprAST::Codegen() {
 
     return Builder.CreateCall(CalleeF, ArgsV, "calltmp");
 }
+
+Function *PrototypeAST::Codegen() {
+    // Make the function type: double(double, double) etc.
+    std::vector<Type*> Doubles( Args.size(),
+                                Type::getDoubleTy(getGlobalContext()));
+    FunctionType *FT = FunctionType::get(Type::getDoubleTy(getGlobalContext()),
+                                     Doubles, false);
+    Function *F = Function::Create(FT, Function::ExternalLinkage, Name, TheModule);
+
+    // If F conflicted, there was already something name 'Name'. If it has a
+    // body, don't allow redefinition or reextern
+    if (F->getName() != Name) {
+        // Delete the one we just made and get the existing one.
+        F->eraseFromParent();
+        F = TheModule->getFunction(Name);
+        
+        // If F already has a body, reject this.
+        if (!F->empty()) {
+            ErrorF("redefinition of function");
+            return 0;
+        }
+
+        // if F took a different number of args, reject.
+        if (F->arg_size() != Args.size()) {
+            ErrorF("redefinition of function with differnet # args");
+            return 0;
+        }
+    }
+    // Set name for all argument.
+    unsigned Idx = 0;
+    for (Function::arg_iterator AI = F->arg_begin(); Idx != Args.size();
+        ++AI, ++Idx) {
+        AI->setName(Args[Idx]);
+        // Add arguments to variable symbol table.
+        NameValues[Args[Idx]] = AI;
+    }
+    return F;
+}
+
+Function *FunctionAST::Codegen() {
+    NameValues.clear();
+
+    Function *TheFunction = Proto->Codegen();       
+    if (TheFunction == 0) {
+        return 0;
+    }   
+
+    // Create a new basic block to start insertion into.
+    BasicBlock *BB = BasicBlock::Create(getGlobalContext(), "entry", TheFunction);
+    Builder.SetInsertPoint(BB);
+    if (Value *RetVal = Body->Codegen()) {
+        if (Value *RetVal = Body->Codegen()) {
+            // Finish off the function.
+            Builder.CreateRet(RetVal);
+
+            // Validate the generated code, checking for consistency
+            verifyFunction(*TheFunction);
+
+            return TheFunction;
+        }
+        // Error reading body, remove function
+        TheFunction->eraseFromParent();
+        return 0;   
+    }
+}

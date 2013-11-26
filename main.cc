@@ -25,18 +25,25 @@ static void MainLoop() {
 
 int main(int argc, const char *argv[])
 {
+    LLVMContext &Context = getGlobalContext();
     // Standard binary operator
     // 1 is lowest precedence
     BinopPrecedence['<'] = 10;
     BinopPrecedence['+'] = 20;
     BinopPrecedence['-'] = 20;
     BinopPrecedence['*'] = 40;  // highest.  
-   
+  
     // Prime the first token 
     fprintf(stderr, "ready> ");
     getNextToken();
 
+    // Make the module, which holds all the code 
+    TheModule = new Module("my cool jit", Context);
+
     // Run the main "interpreter Loop" now
     MainLoop();
+
+    // Print out all of the generated code.
+    TheModule->dump();
     return 0;
 }

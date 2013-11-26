@@ -67,6 +67,7 @@ class PrototypeAST {
 public:
     PrototypeAST (const std::string &name, const std::vector<std::string> &args)
         : Name(name), Args(args) {};
+    virtual Function *Codegen();
 };
 
 // FunctionAST - This class represents a function definition itself.
@@ -76,6 +77,7 @@ class FunctionAST {
 public:
     FunctionAST (PrototypeAST *proto, ExprAST *body) : Proto(proto), 
         Body(body){};
+    virtual Function *Codegen();
 };
 
 // Function 
