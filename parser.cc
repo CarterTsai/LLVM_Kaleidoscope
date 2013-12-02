@@ -13,7 +13,7 @@ std::string IdentifierStr;
 std::map<char, int> BinopPrecedence; 
 
 
-static ExprAST *ParsePrimary() {
+ExprAST *ParsePrimary() {
     switch (CurTok) {
         default: 
             printf("--> %c\n",CurTok);
@@ -27,7 +27,7 @@ static ExprAST *ParsePrimary() {
 // expression
 //   ::= primary binoprhs
 
-static ExprAST *ParseExpression() {
+ExprAST *ParseExpression() {
     ExprAST *LHS = ParsePrimary();
     if (!LHS) return 0;
 
@@ -35,14 +35,14 @@ static ExprAST *ParseExpression() {
 }
 
 // numberexpre ::= number
-static ExprAST *ParseNumberExpr() {
+ExprAST *ParseNumberExpr() {
     ExprAST *Result = new NumberExprAST(NumVal);
     getNextToken();
     return Result;
 }
 
 // parenexpr ::= '(' expression ')'
-static ExprAST *ParseParenExpr() {
+ExprAST *ParseParenExpr() {
     getNextToken(); // eat (
     ExprAST *V = ParseExpression();
     if (!V) return 0;
@@ -56,7 +56,7 @@ static ExprAST *ParseParenExpr() {
 // Identifierexpr
 //  ::= Identifier
 //  ::= Identifier '(' expression* ')'
-static ExprAST *ParseIdentifierExpr() {
+ExprAST *ParseIdentifierExpr() {
     std::string IdName = IdentifierStr;
     getNextToken(); // eat identifier
     
@@ -98,7 +98,7 @@ static int GetTokPrecedence() {
 
 // binoprhs
 // ::= ('+' primary)*
-static ExprAST *ParseBinOpRHS(int ExprPrec, ExprAST *LHS) {
+ExprAST *ParseBinOpRHS(int ExprPrec, ExprAST *LHS) {
     // if this is a binop, find its precedence
     while (1) {
         int TokPrec = GetTokPrecedence();
@@ -321,4 +321,5 @@ Function *FunctionAST::Codegen() {
         TheFunction->eraseFromParent();
         return 0;   
     }
+    return 0;
 }

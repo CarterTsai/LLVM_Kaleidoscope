@@ -82,10 +82,10 @@ public:
 
 // Function 
 
-static ExprAST *ParseBinOpRHS(int ExprPrec, ExprAST *LHS);
-static ExprAST *ParseParenExpr();
-static ExprAST *ParseNumberExpr();
-static ExprAST *ParseIdentifierExpr();
+ExprAST *ParseBinOpRHS(int ExprPrec, ExprAST *LHS);
+ExprAST *ParseParenExpr();
+ExprAST *ParseNumberExpr();
+ExprAST *ParseIdentifierExpr();
 ExprAST *Error(const char *Str);
 PrototypeAST *ErrorP(const char *Str);
 FunctionAST *ErrorF(const char *Str );
