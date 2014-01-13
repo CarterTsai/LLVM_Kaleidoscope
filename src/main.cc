@@ -25,6 +25,7 @@ static void MainLoop() {
 
 int main(int argc, const char *argv[])
 {
+    InitializeNativeTarget();
     LLVMContext &Context = getGlobalContext();
     // Standard binary operator
     // 1 is lowest precedence

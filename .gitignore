@@ -6,3 +6,4 @@ components
 tmp
 cscope.*
 *.swp
+build
